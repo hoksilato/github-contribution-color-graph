@@ -1,6 +1,14 @@
 Changelog
 =========
 
+### v1.8.0 / 2026-11-08
+
+  - Migrate the Chrome extension to Manifest V3 with the same permissions
+  - Support current contribution calendar cells and legend
+  - Apply saved themes immediately and cover dynamically loaded graphs
+  - Handle missing and invalid preferences safely
+  - Add DOM regression tests and update packaging for modern Node.js
+
 ### v1.7.2 / 2020-10-30
 
   - Fix contribution graph and progress bar colors (new GitHub CSS variables)

@@ -1,8 +1,8 @@
 {
   "name": "GitHub Contribution Color Graph",
   "description": "Change colors of contribution graph in GitHub",
-  "manifest_version": 2,
-  "version": "1.7.2",
+  "manifest_version": 3,
+  "version": "1.8.0",
 
   "content_scripts": [{
     "js": [ "js/contentscript.js" ],

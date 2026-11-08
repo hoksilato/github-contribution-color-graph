@@ -1,14 +1,14 @@
 {
   "name": "github-contribution-color-graph",
   "private": true,
-  "version": "1.7.2",
+  "version": "1.8.0",
   "description": "Change colors of contribution graph in GitHub",
   "keywords": [],
   "author": "William Belle <william.belle@gmail.com>",
   "license": "MIT",
   "repository": "williambelle/github-contribution-color-graph",
   "engines": {
-    "node": ">=10"
+    "node": ">=18"
   },
   "scripts": {
     "build": "grunt build",
@@ -17,16 +17,18 @@
     "test": "grunt test"
   },
   "devDependencies": {
+    "eslint": "^7.32.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.21.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "grunt": "^1.1.0",
-    "grunt-contrib-compress": "^1.6.0",
+    "grunt-contrib-compress": "^2.0.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-watch": "^1.1.0",
     "load-grunt-config": "^3.0.1",
-    "grunt-eslint": "^23.0.0"
+    "grunt-eslint": "^23.0.0",
+    "jsdom": "^26.1.0"
   }
 }
