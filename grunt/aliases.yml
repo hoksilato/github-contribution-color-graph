@@ -1,5 +1,6 @@
 test:
   - 'eslint'
+  - 'regression'
 
 build:
   - 'test'

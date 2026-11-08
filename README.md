@@ -52,6 +52,25 @@ Install
 
 The Chrome version also works in Opera (using [this][link-op]) and Edge.
 
+### Install this fork in Chrome
+
+The Chrome build uses Manifest V3. To install the version from this repository:
+
+1. Install Node.js 18 or newer, then run `npm install` and `npm run package`.
+2. Open `chrome://extensions` in Chrome and enable **Developer mode**.
+3. Click **Load unpacked** and select this project's `dist/chrome` folder.
+4. Reload any already-open GitHub profile tabs.
+5. Open the extension's **Details → Extension options**, choose a theme and save.
+   Open GitHub profile graphs update immediately when a preference is saved.
+
+Keep `dist/chrome` in place while the unpacked extension is installed.
+The ZIP in `package/` is for distribution; Chrome's **Load unpacked** needs the
+folder containing `manifest.json`, rather than the ZIP itself.
+
+Before submitting changes, check graph and legend colors, activity overview,
+year switching, navigation between profiles, preference persistence after
+restarting Chrome, and both light and dark GitHub appearances.
+
 Screenshots
 -----------
 

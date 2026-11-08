@@ -83,83 +83,45 @@ function randomProperty (obj) {
   return keys[keys.length * Math.random() << 0];
 }
 
-function applyColorToCssGitHubVars (color) {
-  for (var i = 0, l = cssGitHubVars.length; i < l; i++) {
-    document.documentElement.style.setProperty(
-      cssGitHubVars[i],
-      color[i]
-    );
+// A stylesheet also applies to graphs loaded later by Turbo navigation or
+// year switching, without observing and repainting the whole document.
+var themeStyle = document.createElement('style');
+themeStyle.id = 'github-contribution-color-graph-theme';
+document.documentElement.appendChild(themeStyle);
+
+function applyTheme (name) {
+  if (name === 'random') name = randomColor;
+  if (!Object.prototype.hasOwnProperty.call(colors, name)) name = 'halloween';
+  var color = colors[name];
+  var rules = [];
+
+  for (var i = 0; i < color.length; i++) {
+    rules.push(':root { ' + cssGitHubVars[i] + ': ' + color[i] + '; }');
+    rules.push('.ContributionCalendar-day[data-level="' + i + '"] {' +
+      ' background-color: ' + color[i] + ' !important;' +
+      ' fill: ' + color[i] + ' !important; }');
+    rules.push('.js-yearly-contributions .legend li:nth-child(' + (i + 1) +
+      ') { background-color: ' + color[i] + ' !important; }');
   }
+
+  rules.push('.js-highlight-blob { fill: ' + color[2] +
+    ' !important; stroke: ' + color[2] + ' !important; }');
+  rules.push('.activity-overview-axis, .activity-overview-point {' +
+    ' stroke: ' + color[3] + ' !important; }');
+  rules.push('.contribution-activity .Progress-item {' +
+    ' background-color: ' + color[4] + ' !important; }');
+  themeStyle.textContent = rules.join('\n');
 }
 
-function applyColorToLegend (color) {
-  var doc = document.getElementsByClassName('legend');
-
-  if (doc[0]) {
-    var lis = doc[0].getElementsByTagName('li');
-
-    for (var i = 1, l = lis.length; i < l; i++) {
-      lis[i].style.setProperty('background-color', color[i], 'important');
-    }
+// Register first so a preference saved during the initial read is not lost.
+var preferenceChanged = false;
+chrome.storage.onChanged.addListener(function (changes, area) {
+  if (area === 'local' && changes.favoriteColor) {
+    preferenceChanged = true;
+    applyTheme(changes.favoriteColor.newValue);
   }
-}
+});
 
-function applyColorToActivity (color) {
-  var path = document.getElementsByClassName('js-highlight-blob');
-  if (path[0]) {
-    for (var i = 0, l = path.length; i < l; i++) {
-      path[i].setAttribute('fill', color[2]);
-      path[i].setAttribute('stroke', color[2]);
-    }
-  }
-
-  var axis = document.getElementsByClassName('activity-overview-axis');
-  if (axis[0]) {
-    for (var j = 0, m = axis.length; j < m; j++) {
-      axis[j].style.stroke = color[3];
-    }
-  }
-
-  var points = document.getElementsByClassName('activity-overview-point');
-  if (points[0]) {
-    for (var k = 0, n = points.length; k < n; k++) {
-      points[k].style.stroke = color[3];
-    }
-  }
-}
-
-function applyOptions () {
-  chrome.storage.local.get('favoriteColor', function (color) {
-    if (!color.favoriteColor) {
-      color.favoriteColor = 'halloween';
-    } else if (color.favoriteColor === 'random') {
-      color.favoriteColor = randomColor;
-    }
-    applyColorToCssGitHubVars(colors[color.favoriteColor]);
-    applyColorToLegend(colors[color.favoriteColor]);
-    applyColorToActivity(colors[color.favoriteColor]);
-  });
-}
-
-(function () {
-  // Call applyOptions after document load
-  applyOptions();
-
-  // Observe DOM modifications
-  var container = document.getElementById('js-pjax-container');
-
-  if (container) {
-    var observer = new MutationObserver(function (mutations) {
-      var graph =
-        document.getElementsByClassName('js-yearly-contributions')[0];
-
-      if (graph) {
-        applyOptions();
-      }
-    });
-
-    var config = { subtree: true, childList: true };
-
-    observer.observe(container, config);
-  }
-})();
+chrome.storage.local.get('favoriteColor', function (items) {
+  if (!preferenceChanged) applyTheme(items.favoriteColor);
+});
