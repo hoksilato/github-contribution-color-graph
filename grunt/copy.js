@@ -2,6 +2,12 @@
 
 module.exports = function (grunt, options) {
   return {
+    license: {
+      files: [{
+        src: 'LICENSE',
+        dest: 'dist/chrome/LICENSE'
+      }]
+    },
     buildChrome: {
       files: [{
         expand: true,

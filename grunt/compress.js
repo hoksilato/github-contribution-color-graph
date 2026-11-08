@@ -4,7 +4,7 @@ module.exports = function (grunt, options) {
   return {
     chrome: {
       options: {
-        archive: 'package/chrome-v' + options.package.version + '.zip'
+        archive: 'package/release.zip'
       },
       files: [{
         src: '**/*',
