@@ -1,0 +1,84 @@
+name: Chrome release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chrome-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Test and package Chrome extension
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run package:chrome
+      - name: Verify extension archive
+        run: |
+          unzip -t package/release.zip
+          unzip -Z1 package/release.zip | grep -Fx manifest.json
+          unzip -Z1 package/release.zip | grep -Fx LICENSE
+          unzip -p package/release.zip manifest.json | jq -e '.manifest_version == 3'
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: chrome-release
+          path: package/release.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Update latest build release
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      BUILD_SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: chrome-release
+      - name: Publish release.zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          # An old run or rerun must not replace a newer main build.
+          current_sha=$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq '.object.sha')
+          if [[ "$current_sha" != "$BUILD_SHA" ]]; then
+            echo 'Skipping publication: main has a newer commit.'
+            exit 0
+          fi
+
+          printf 'Automatic Chrome extension build from main.\n\nCommit: %s\nWorkflow: https://github.com/%s/actions/runs/%s\n\nDownload release.zip and extract it to install the unpacked extension.\n' \
+            "$BUILD_SHA" "$GH_REPO" "$GITHUB_RUN_ID" > release-notes.txt
+
+          if gh release view latest-build > /dev/null 2>&1; then
+            gh api --method PATCH "repos/$GH_REPO/git/refs/tags/latest-build" \
+              -f sha="$BUILD_SHA" -F force=true
+            gh release upload latest-build release.zip --clobber
+            gh release edit latest-build --title 'Latest build' \
+              --notes-file release-notes.txt --latest
+          else
+            gh release create latest-build release.zip --target "$BUILD_SHA" \
+              --title 'Latest build' --notes-file release-notes.txt --latest
+          fi

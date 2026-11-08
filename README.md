@@ -71,6 +71,24 @@ Before submitting changes, check graph and legend colors, activity overview,
 year switching, navigation between profiles, preference persistence after
 restarting Chrome, and both light and dark GitHub appearances.
 
+### Automatic Chrome builds
+
+Every push to `main` runs lint and regression tests, builds the Chrome
+extension, and updates the **Latest build** GitHub release with `release.zip`.
+Download it from the [latest build release](https://github.com/hoksilato/github-contribution-color-graph/releases/tag/latest-build).
+The release tag moves to the successfully published commit. A failed build
+leaves the previous release in place; old runs cannot overwrite a newer commit.
+
+Pull requests targeting `main` run the same build checks and upload a workflow
+artifact, but do not publish releases. The workflow can also be run manually
+from the Actions tab on `main`. No additional repository secrets are needed.
+
+To generate the same archive locally, use `npm ci` followed by
+`npm run package:chrome`. The result is `package/release.zip`, with
+`manifest.json` and the original MIT license at the ZIP root. Extract the ZIP
+before loading it in Chrome. This workflow publishes to GitHub Releases;
+Chrome Web Store submission remains a separate step.
+
 Screenshots
 -----------
 

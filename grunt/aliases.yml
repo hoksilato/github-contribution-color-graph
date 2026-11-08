@@ -6,6 +6,13 @@ build:
   - 'test'
   - 'copy:buildChrome'
   - 'copy:buildFirefox'
+  - 'copy:license'
+
+packageChrome:
+  - 'test'
+  - 'copy:buildChrome'
+  - 'copy:license'
+  - 'compress:chrome'
 
 package:
   - 'build'
